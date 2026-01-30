@@ -318,6 +318,7 @@ export async function generateContent(
   totalCost += schema.cost;
 
   const title = extractTitle(draft.text);
+  // Quick structural score during generation (real validation runs separately via /api/scoring/validate)
   const aeoScore = calculateAEOScore(draft.text, schema.text, request);
 
   return {
