@@ -1,5 +1,5 @@
-AEO tools charge $300/month to show you a dashboard.
-I built a self-improving agentic system that closes the loop for $2/month in API costs.
+AEO and GEO tools charge $300/month to show you a dashboard.
+I built a self-improving agentic AEO/GEO system that closes the loop for $2/month in API costs.
 
 Most AEO/GEO tools probe an LLM, check if your brand appears, display a number. That is step 1 of 4. The system stops there. It never acts on the data. You stare at a dashboard, then manually rewrite content, then manually re-check. The feedback loop stays open.
 

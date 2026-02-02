@@ -1,4 +1,4 @@
-# Citability Engine -- One Pager
+# Citability Engine — AEO + GEO Platform — One Pager
 
 ## The Problem
 

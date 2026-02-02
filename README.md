@@ -1,6 +1,6 @@
-# Citability Engine
+# Citability Engine — AEO + GEO Platform
 
-**Self-hosted platform that tracks, scores, and improves how AI engines cite your brand.** Covers both Answer Engine Optimization (AEO) and Generative Engine Optimization (GEO) through a self-improving agentic feedback loop: Probe → Score → Optimize → Re-probe.
+**Self-hosted AEO/GEO platform that tracks, scores, and improves how AI engines cite your brand.** Covers both Answer Engine Optimization (AEO) and Generative Engine Optimization (GEO) through a self-improving agentic feedback loop: Probe → Score → Optimize → Re-probe.
 
 AI engines (ChatGPT, Claude, Gemini, Perplexity) are replacing traditional search for millions of users. When someone asks "what's the best CRM tool?", the AI's answer determines who gets the customer. Citability Engine gives you visibility into those answers and an autonomous system that improves your position.
 
