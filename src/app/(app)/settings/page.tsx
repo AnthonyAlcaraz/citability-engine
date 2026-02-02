@@ -212,7 +212,7 @@ export default function SettingsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-sm text-gray-500">Configure your AEO Engine</p>
+          <p className="text-sm text-gray-500">Configure your Citability Engine</p>
         </div>
         <Skeleton className="h-10 w-80" />
         <div className="space-y-4">
@@ -228,7 +228,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-sm text-gray-500">Configure your AEO Engine</p>
+          <p className="text-sm text-gray-500">Configure your Citability Engine</p>
         </div>
         <Button onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}

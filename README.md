@@ -1,8 +1,8 @@
-# AEO Engine
+# Citability Engine
 
-**Self-hosted Answer Engine Optimization (AEO) and Generative Engine Optimization (GEO) platform.** Track how AI models cite your brand, validate citation likelihood with real LLM probes, and optimize content based on competitive intelligence.
+**Self-hosted platform that tracks, scores, and improves how AI engines cite your brand.** Covers both Answer Engine Optimization (AEO) and Generative Engine Optimization (GEO) through a self-improving agentic feedback loop: Probe → Score → Optimize → Re-probe.
 
-AI engines (ChatGPT, Claude, Gemini, Perplexity) are replacing traditional search for millions of users. When someone asks "what's the best CRM tool?", the AI's answer determines who gets the customer. AEO Engine gives you visibility into those answers and tools to improve your position.
+AI engines (ChatGPT, Claude, Gemini, Perplexity) are replacing traditional search for millions of users. When someone asks "what's the best CRM tool?", the AI's answer determines who gets the customer. Citability Engine gives you visibility into those answers and an autonomous system that improves your position.
 
 ### AEO + GEO: One Platform, Both Strategies
 
@@ -11,7 +11,7 @@ The industry uses two terms for the same fundamental challenge: getting your con
 - **AEO (Answer Engine Optimization)** targets featured snippets, voice assistants, People Also Ask, and AI Overviews on Google — anywhere a direct answer replaces a blue link.
 - **GEO (Generative Engine Optimization)** targets generative AI platforms (ChatGPT, Claude, Perplexity, Gemini) that synthesize multi-source responses with citations.
 
-AEO Engine covers both. The probe system tests your content against generative AI platforms (GEO) while the structural scoring validates answer-engine readiness (AEO). The 3-component scoring system measures both: Citation Validation (50%) tests GEO — does the generative AI cite you? Structural Analysis (20%) tests AEO — is your content formatted for extraction? Competitive Gap (30%) benchmarks both against competitors.
+Citability Engine covers both. The probe system tests your content against generative AI platforms (GEO) while the structural scoring validates answer-engine readiness (AEO). The 3-component scoring system measures both: Citation Validation (50%) tests GEO — does the generative AI cite you? Structural Analysis (20%) tests AEO — is your content formatted for extraction? Competitive Gap (30%) benchmarks both against competitors.
 
 ## Features
 
@@ -60,7 +60,7 @@ Run all probes at once. Schedule with cron expressions for automated daily or we
 
 ## Agentic Feedback Loop
 
-AEO Engine is not a dashboard that shows static metrics. It is an agentic system that closes the loop between measurement and action.
+Citability Engine is not a dashboard that shows static metrics. It is a self-improving agentic system that closes the loop between measurement and action.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -112,35 +112,49 @@ The system contains three nested autonomous loops:
 
 ---
 
-## Why a Knowledge Graph Would Improve This
+## Knowledge Graph Layer (KuzuDB)
 
-The current system stores citation data in relational tables. This works for basic probing but misses structural relationships that a knowledge graph would capture.
+The knowledge graph (`src/lib/graph/`) stores citation data as a property graph in KuzuDB, solving three problems the relational DB cannot handle.
 
-### What a Graph-Based Architecture Enables
+### Entity Resolution
 
-**Entity Resolution Across Probes** — When ChatGPT mentions "Salesforce CRM" and Perplexity mentions "Salesforce Sales Cloud", the current system treats these as different strings. A knowledge graph would resolve both to the same entity node, connecting: `Brand → hasProduct → CRM → isAlsoKnownAs → Sales Cloud`. Citation counts become accurate across naming variants.
+When ChatGPT mentions "Salesforce CRM" and Perplexity mentions "Salesforce Sales Cloud", the relational DB treats these as different strings. The knowledge graph resolves both to the same canonical entity node via `ALIAS_OF` edges. Citation counts become accurate across naming variants.
 
-**Relationship Traversal for Gap Analysis** — Instead of flat competitor comparison, a graph captures: `YourBrand → competesWith → CompetitorA → citedFor → "enterprise CRM" → byProvider → Perplexity`. You can traverse the graph to find: "For which category-provider pairs do competitors get cited but we don't?" This is a graph query, not a SQL join.
+```
+Entity("Salesforce") ←─ ALIAS_OF ─ Entity("Salesforce CRM")
+                     ←─ ALIAS_OF ─ Entity("Salesforce Sales Cloud")
+```
 
-**Citation Path Analysis** — Track how a citation propagates: `Content → mentionedIn → CitationResult → fromProvider → OpenAI → withSearchBackend → Bing → indexedFrom → yourDomain`. This reveals which search backends surface your content and which don't — something the flat relational model cannot represent.
+### Citation Path Analysis
 
-**Temporal Knowledge Graph** — Each probe run adds timestamped edges. Query: "How has our entity's citation pattern changed over 30 days across providers?" The graph stores the trajectory as connected temporal nodes, not aggregated dashboard metrics.
+Every probe result creates a traversable path: `Entity → CITED_IN → Citation → FROM_PROVIDER → Provider`. This reveals which search backends (Bing, Brave, Google) surface your brand most frequently. The `getSearchBackendAnalysis()` method answers: "Which search index cites us and which doesn't?"
 
-**Schema.org Alignment** — Your content's JSON-LD schema markup (Organization, Product, FAQ) maps directly to graph ontology. A knowledge graph can validate: "Does our content's entity structure match what AI engines expect?" by comparing your schema graph to the entity patterns that earn citations.
+### Temporal Tracking
+
+Each citation event carries a timestamp. The `getCitationTrajectory()` method returns citation rate over time per entity per provider — showing whether your visibility is rising or declining across each AI engine over 30 days.
+
+### Graph Schema
+
+```
+Nodes: Entity, Provider, Query, Citation
+Edges: ALIAS_OF, CITED_IN, FROM_PROVIDER, FOR_QUERY, COMPETES_WITH
+```
+
+### Ingestion Bridge
+
+`src/lib/graph/ingest.ts` connects citation detection to the graph. After every probe run, `ingestCitationResult()` creates entity nodes, citation events, and competitive edges automatically. The graph grows with every probe cycle.
 
 ### The Architectural Parallel
 
-This is the same principle that drives knowledge graph superiority in agent memory systems. Vector search finds semantically similar chunks. Knowledge graphs find structurally connected entities. When an agent traverses `customer → product → feature → documentation`, vectors fail because they index similarity, not structure.
-
-When an AI engine decides which brand to cite, it performs entity resolution and relationship traversal — the same operations knowledge graphs are built for. The brands with clear entity structures, consistent schema markup, and interconnected content are the ones that get cited. AEO Engine measures this outcome. A graph-based AEO engine would model the underlying structure that produces it.
+AI engines already perform entity resolution and relationship traversal to decide what to cite. The knowledge graph mirrors that reasoning — brands with clear entity structures, consistent naming, and interconnected content are the ones that get cited. Citability Engine models the same structure that produces citations.
 
 ---
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/AnthonyAlcaraz/aeo-engine.git
-cd aeo-engine
+git clone https://github.com/AnthonyAlcaraz/citability-engine.git
+cd citability-engine
 npm install
 ```
 
@@ -275,6 +289,7 @@ src/
 │   ├── citation/                      # 3-layer detection + prompt templates + competitive engine
 │   ├── content/                       # 3-stage generation + optimization + schema markup
 │   ├── scoring/                       # 3-component AEO scorer + query extractor
+│   ├── graph/                         # KuzuDB knowledge graph (entity resolution, citation paths, temporal)
 │   ├── monitoring/                    # Rate limiter + cache
 │   └── db/                            # Prisma client singleton
 └── prisma/
@@ -292,6 +307,7 @@ src/
 | Frontend | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4, Recharts, @dnd-kit |
 | API | Next.js API routes with Zod validation |
 | Database | Prisma ORM + SQLite (swappable to PostgreSQL) |
+| Knowledge Graph | KuzuDB — entity resolution, citation path analysis, temporal tracking |
 | LLM Integration | OpenAI (Bing search), Anthropic (Brave search), Google (Google Search grounding), Perplexity (multi-index), Tavily (AI search aggregator) |
 | Cost Control | Per-provider rate limiter (100K tokens/min, $5/day cap, configurable) |
 | Caching | SHA-256 keyed, 24h TTL for probes, 7d for content |
@@ -300,7 +316,7 @@ src/
 
 ## Default Models
 
-**Every provider searches the live web.** No raw LLM baselines — AEO Engine tests what users actually see.
+**Every provider searches the live web.** No raw LLM baselines — Citability Engine tests what users actually see.
 
 | Provider | Model | Search Backend | Cost per Probe |
 |----------|-------|---------------|---------------|
@@ -320,7 +336,7 @@ src/
 
 ### Why All-Search Probing Matters
 
-Users don't query raw LLMs. They ask ChatGPT with search on, Claude with web access, Gemini with grounding, Perplexity with citations. Testing raw model responses tells you what the model memorized during training. Testing search-enabled responses tells you what users actually see when they ask about your brand today. AEO Engine probes all 5 providers with live web search — covering Bing (OpenAI), Brave (Anthropic), Google (Gemini), multi-index (Perplexity), and aggregated web (Tavily).
+Users don't query raw LLMs. They ask ChatGPT with search on, Claude with web access, Gemini with grounding, Perplexity with citations. Testing raw model responses tells you what the model memorized during training. Testing search-enabled responses tells you what users actually see when they ask about your brand today. Citability Engine probes all 5 providers with live web search — covering Bing (OpenAI), Brave (Anthropic), Google (Gemini), multi-index (Perplexity), and aggregated web (Tavily).
 
 A full probe across 5 providers costs approximately $0.06. Running 10 probes daily costs under $20/month. Content generation with stronger models (GPT-4o, Claude Sonnet) costs $0.05-0.15 per article.
 

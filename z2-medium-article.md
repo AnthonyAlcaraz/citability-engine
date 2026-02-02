@@ -36,7 +36,7 @@ The industry draws a line between AEO and GEO that does not hold up under examin
 
 Some argue these are the same strategy with different labels. Profound calls them "one strategy." The underlying mechanics overlap significantly: structured content, entity consistency, and authoritative sourcing improve both extraction and citation.
 
-The practical difference matters for measurement. AEO success shows up in SERP features. GEO success shows up in generative AI responses. You need to measure both. AEO Engine does — the Structural Analysis component validates extraction readiness (AEO), while Citation Validation probes generative AI responses (GEO).
+The practical difference matters for measurement. AEO success shows up in SERP features. GEO success shows up in generative AI responses. You need to measure both. Citability Engine does — the Structural Analysis component validates extraction readiness (AEO), while Citation Validation probes generative AI responses (GEO).
 
 ## The AEO/GEO Gold Rush
 
@@ -58,15 +58,15 @@ That's it. The core detection logic is approximately 50 lines of code. The value
 
 The scoring systems are typically opaque. You see a number. You don't see how it was calculated. You can't inspect which queries were run, what detection logic was applied, or how the weights were determined. The methodology is proprietary, which means you're optimizing for a black box inside another black box (the LLM).
 
-## Why I Built AEO Engine
+## Why I Built Citability Engine
 
-I built AEO Engine as a self-hosted, open source platform because I wanted to see exactly what was happening. The full codebase is 22 API routes, 9 pages, 13 library modules, 5 search-enabled provider adapters, and 11 database models. Everything is inspectable.
+I built Citability Engine as a self-hosted, self-improving agentic system because I wanted to see exactly what was happening — and close the feedback loop that dashboard tools leave open. The full codebase is 22 API routes, 9 pages, 13 library modules, 5 search-enabled provider adapters, and 11 database models. Everything is inspectable.
 
-The repo: [github.com/AnthonyAlcaraz/aeo-engine](https://github.com/AnthonyAlcaraz/aeo-engine)
+The repo: [github.com/AnthonyAlcaraz/citability-engine](https://github.com/AnthonyAlcaraz/citability-engine)
 
 ### 3-Layer Citation Detection
 
-Most tools check if your brand name appears in a response. AEO Engine runs three detection layers with explicit confidence scoring:
+Most tools check if your brand name appears in a response. Citability Engine runs three detection layers with explicit confidence scoring:
 
 | Layer | Method | Confidence |
 |-------|--------|-----------|
@@ -85,13 +85,13 @@ The detection runs across five providers — **all with live web search enabled*
 - **Perplexity** (Sonar with built-in multi-index search) — searches Bing + Google + its own PerplexityBot crawler index
 - **Tavily** (AI search aggregator) — searches and filters from 20+ web sources with scored relevance
 
-Every provider searches the live web. No raw LLM baselines. This distinction matters. Most AEO tools probe raw LLMs, which tests what models memorized during training. Real users interact with ChatGPT Search, Claude with web access, Gemini with grounding on, and Perplexity with live citations. AEO Engine tests what users actually see — search-augmented responses that pull from live web content across five different search backends (Bing, Brave, Google, multi-index, aggregated web).
+Every provider searches the live web. No raw LLM baselines. This distinction matters. Most AEO tools probe raw LLMs, which tests what models memorized during training. Real users interact with ChatGPT Search, Claude with web access, Gemini with grounding on, and Perplexity with live citations. Citability Engine tests what users actually see — search-augmented responses that pull from live web content across five different search backends (Bing, Brave, Google, multi-index, aggregated web).
 
 ### 3-Component Scoring (The Part That Actually Matters)
 
 The standard AEO scoring approach is circular. Content generation tools produce articles with FAQ sections, clear headings, and schema markup. Scoring tools then check whether those elements exist. This measures "did the content follow formatting instructions," not "will AI engines cite this."
 
-AEO Engine splits the score into three independent components:
+Citability Engine splits the score into three independent components:
 
 **Structural Analysis (20% weight):** The traditional heuristic checks — schema markup presence, FAQ sections, heading count, keyword density, readability grade, brand mention count, word count. These correlate with citability but are not sufficient indicators on their own.
 
@@ -105,7 +105,7 @@ The weighting is deliberate. Citation Validation dominates because it is the onl
 
 ### Competitive Analysis
 
-AEO Engine runs all your probes against all enabled providers, detecting citations for both your brand and every competitor you've configured. It builds competitor profiles:
+Citability Engine runs all your probes against all enabled providers, detecting citations for both your brand and every competitor you've configured. It builds competitor profiles:
 
 - **Citation rate** per provider and per probe category
 - **Average position** when cited in ranked lists
@@ -127,7 +127,7 @@ It rewrites sections to maximize citation likelihood, returns a detailed change 
 
 ### The Agentic Feedback Loop
 
-This is what separates AEO Engine from a dashboard. Most AEO/GEO tools stop at step 1: probe and display. AEO Engine runs a closed feedback loop:
+This is what separates Citability Engine from a dashboard. Most AEO/GEO tools stop at step 1: probe and display. Citability Engine runs a closed feedback loop:
 
 ```
 PROBE → SCORE → OPTIMIZE → RE-PROBE → (repeat)
@@ -197,19 +197,19 @@ Brands with clear entity structures get cited. Their name, domain, products, and
 
 Brands with keyword-stuffed content get ignored. The entity signals are muddled. The relationship between brand and category is diluted across competing signals.
 
-### Why a Knowledge Graph Would Improve AEO Engine
+### The Knowledge Graph Layer (KuzuDB)
 
-The current system stores citation data in relational tables (Prisma + SQLite). This works for basic probing and scoring but misses structural relationships that a graph would capture.
+Citability Engine includes a knowledge graph layer backed by KuzuDB (`src/lib/graph/`) that solves three problems the relational DB cannot handle.
 
-**Entity Resolution Across Probes.** When ChatGPT mentions "Salesforce CRM" and Perplexity mentions "Salesforce Sales Cloud", the relational DB treats these as different strings. A knowledge graph would resolve both to the same entity node: `Brand → hasProduct → CRM → isAlsoKnownAs → Sales Cloud`. Citation counts become accurate across naming variants.
+**Entity Resolution Across Providers.** When ChatGPT mentions "Salesforce CRM" and Perplexity mentions "Salesforce Sales Cloud", the relational DB treats these as different strings. The knowledge graph resolves both to the same canonical entity node via `ALIAS_OF` edges. Citation counts become accurate across naming variants.
 
-**Citation Path Analysis.** Track how citations propagate: `Content → mentionedIn → CitationResult → fromProvider → OpenAI → withSearchBackend → Bing → indexedFrom → yourDomain`. This reveals which search backends surface your content and which don't — a graph traversal query, not a SQL join.
+**Citation Path Analysis.** Every probe result creates a traversable path: `Entity → CITED_IN → Citation → FROM_PROVIDER → Provider`. The `getSearchBackendAnalysis()` method reveals which search backends (Bing, Brave, Google) surface your brand most frequently — a graph traversal, not a SQL join.
 
-**Competitive Relationship Mapping.** Instead of flat competitor tables, model: `YourBrand → competesWith → CompetitorA → citedFor → "enterprise CRM" → byProvider → Perplexity`. Traverse the graph to find category-provider pairs where competitors get cited and you don't.
+**Temporal Tracking.** Each citation event carries a timestamp. The `getCitationTrajectory()` method returns citation rate over time per entity per provider over 30 days. You see whether your visibility is rising or declining across each AI engine.
 
-**Temporal Knowledge Graph.** Each probe run adds timestamped edges. Query: "How has our entity's citation pattern changed over 30 days across providers?" The graph stores the trajectory as connected temporal nodes, not aggregated dashboard metrics.
+**Competitive Relationship Mapping.** `COMPETES_WITH` edges connect brands across categories. Traverse the graph to find category-provider pairs where competitors get cited and you don't.
 
-**Schema.org Alignment.** Your content's JSON-LD markup (Organization, Product, FAQ) maps directly to graph ontology. A knowledge graph can validate: "Does our content's entity structure match what AI engines expect?" by comparing your schema graph to the entity patterns that earn citations.
+The graph grows automatically. After every probe run, the ingestion bridge (`ingestCitationResult()`) creates entity nodes, citation events, and competitive edges. Each feedback cycle enriches the graph.
 
 ### The Architectural Parallel
 
@@ -227,13 +227,13 @@ AEO amplifies existing authority. If you have 5 blog posts and no schema markup,
 
 Regulated industries face structural ceilings. AI engines deliberately avoid specific recommendations in healthcare, finance, and legal domains. AEO metrics in these sectors may be capped regardless of optimization effort.
 
-The AEO SaaS market is a land grab for what is fundamentally a commodity capability. The value should be in the optimization loop (how to improve citations), not the measurement layer (checking if you appear). AEO Engine provides both — with all 5 providers searching the live web — and the measurement layer is free.
+The AEO SaaS market is a land grab for what is fundamentally a commodity capability. The value should be in the optimization loop (how to improve citations), not the measurement layer (checking if you appear). Citability Engine provides both — with all 5 providers searching the live web — and the measurement layer is free.
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/AnthonyAlcaraz/aeo-engine.git
-cd aeo-engine
+git clone https://github.com/AnthonyAlcaraz/citability-engine.git
+cd citability-engine
 npm install
 ```
 
@@ -280,9 +280,9 @@ The architecture is Next.js 15, React 19, TypeScript, Tailwind CSS, Prisma ORM w
 | Profound | 10+ AI engine monitoring, AEO+GEO unified | [tryprofound.com](https://www.tryprofound.com) |
 | OtterlyAI | AI search monitoring for 15K+ professionals | [otterly.ai](https://otterly.ai) |
 | Finseo | Real-time visibility tracking + sentiment | [finseo.ai](https://www.finseo.ai) |
-| AEO Engine | Open source, self-hosted, 5 search-enabled providers, AEO+GEO scoring | [github.com](https://github.com/AnthonyAlcaraz/aeo-engine) |
+| Citability Engine | Open source, self-hosted, 5 search-enabled providers, AEO+GEO scoring | [github.com](https://github.com/AnthonyAlcaraz/citability-engine) |
 
-### Search API Providers (Used by AEO Engine)
+### Search API Providers (Used by Citability Engine)
 
 | Provider | Search Backend | Type | Link |
 |----------|---------------|------|------|
@@ -296,7 +296,7 @@ The architecture is Next.js 15, React 19, TypeScript, Tailwind CSS, Prisma ORM w
 
 | Repository | Purpose | Link |
 |------------|---------|------|
-| AEO Engine | Self-hosted AEO/GEO platform with 3-component scoring | [github.com/AnthonyAlcaraz/aeo-engine](https://github.com/AnthonyAlcaraz/aeo-engine) |
+| Citability Engine | Self-hosted AEO/GEO platform with 3-component scoring | [github.com/AnthonyAlcaraz/citability-engine](https://github.com/AnthonyAlcaraz/citability-engine) |
 
 ### Books
 

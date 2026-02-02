@@ -1,4 +1,4 @@
-# AEO Engine -- One Pager
+# Citability Engine -- One Pager
 
 ## The Problem
 
@@ -6,7 +6,7 @@ AI engines (ChatGPT, Claude, Gemini, Perplexity) are replacing traditional searc
 
 ## The Solution
 
-AEO Engine is a self-hosted platform that tracks your brand's visibility across AI models, validates whether your content actually earns citations, and optimizes content based on real probe data and competitive intelligence.
+Citability Engine is a self-hosted, self-improving agentic system that tracks your brand's visibility across AI models, validates citation likelihood with real LLM probes, optimizes content, and re-probes autonomously. It closes the feedback loop that dashboard tools leave open.
 
 ## How It Works
 
@@ -83,6 +83,7 @@ Citation Validation dominates because it answers the only question that matters:
 | Pages | 9 pages including competitive analysis, content detail, settings, onboarding |
 | Lib Modules | 13 modules: LLM adapters, citation detection, competitive analysis, content generation, optimization, scoring, monitoring |
 | Database | Prisma + SQLite (swappable to Postgres) |
+| Knowledge Graph | KuzuDB — entity resolution, citation path analysis, temporal tracking |
 | LLM Integration | OpenAI (Bing), Anthropic (Brave), Google (Google Search), Perplexity (multi-index), Tavily (aggregated web) — all search-enabled |
 | Cost Control | Per-provider rate limiter (100K tokens/min, $5/day cap, configurable) |
 | Caching | SHA-256 keyed, 24h TTL for probes, 7d for content |
@@ -94,8 +95,8 @@ All 5 providers search the live web. A full probe across 5 providers costs appro
 ## Quick Start
 
 ```bash
-git clone https://github.com/AnthonyAlcaraz/aeo-engine.git
-cd aeo-engine
+git clone https://github.com/AnthonyAlcaraz/citability-engine.git
+cd citability-engine
 npm install
 # Add API keys to .env (at least one provider)
 npx prisma db push

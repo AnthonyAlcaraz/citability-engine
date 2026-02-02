@@ -23,10 +23,10 @@ The knowledge graph layer (KuzuDB) handles entity resolution across providers. W
 
 AI engines already do entity resolution and relationship traversal to decide what to cite. The system mirrors that reasoning to predict and improve citability.
 
-The repo: github.com/AnthonyAlcaraz/aeo-engine
+The repo: github.com/AnthonyAlcaraz/citability-engine
 
 **Resources:**
 - Agentic Graph RAG (O'Reilly): oreilly.com/library/view/agentic-graph-rag/9798341623163/
-- AEO Engine: github.com/AnthonyAlcaraz/aeo-engine
+- Citability Engine: github.com/AnthonyAlcaraz/citability-engine
 - Princeton GEO Research: arxiv.org/abs/2311.09735
 - HubSpot AEO Trends 2026: blog.hubspot.com/marketing/answer-engine-optimization-trends

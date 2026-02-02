@@ -1,5 +1,5 @@
 /**
- * AEO Engine Adapter Test Script
+ * Citability Engine Adapter Test Script
  * Tests each provider adapter with real API calls where keys are available.
  * Run: npx tsx test-adapters.ts
  */
@@ -45,7 +45,7 @@ async function testProvider(provider: LLMProvider): Promise<{ provider: string; 
 }
 
 async function main() {
-  console.log("AEO Engine — Adapter Test Suite");
+  console.log("Citability Engine — Adapter Test Suite");
   console.log(`Test prompt: "${TEST_PROMPT}"`);
 
   // Check which providers are enabled

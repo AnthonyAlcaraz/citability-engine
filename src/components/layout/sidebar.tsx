@@ -70,7 +70,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-2 border-b border-gray-800 px-6 py-5">
         <Radar className="h-6 w-6 text-blue-400" />
-        <span className="text-lg font-bold tracking-tight">AEO Engine</span>
+        <span className="text-lg font-bold tracking-tight">Citability</span>
       </div>
 
       {/* Navigation */}

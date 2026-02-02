@@ -1,5 +1,5 @@
 /**
- * Knowledge Graph Module — KuzuDB-backed entity graph for AEO Engine
+ * Knowledge Graph Module — KuzuDB-backed entity graph for Citability Engine
  *
  * Solves three problems the relational DB cannot:
  * 1. Entity Resolution: "Salesforce CRM" and "Salesforce Sales Cloud" → same node

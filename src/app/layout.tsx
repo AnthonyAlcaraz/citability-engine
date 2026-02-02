@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AEO Engine",
-  description: "AI Engine Optimization — Citation tracking & content generation",
+  title: "Citability Engine",
+  description: "Self-improving agentic system for AI citation tracking, scoring & optimization",
 };
 
 export default function RootLayout({

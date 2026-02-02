@@ -1,5 +1,5 @@
 /**
- * AEO Engine — Knowledge Graph Test
+ * Citability Engine — Knowledge Graph Test
  * Tests KuzuDB entity resolution, citation path tracking, and temporal analysis.
  * Run: npx tsx test-graph.ts
  */
@@ -17,7 +17,7 @@ async function main() {
   }
   fs.mkdirSync(path.dirname(TEST_DB_PATH), { recursive: true });
 
-  console.log("AEO Engine — Knowledge Graph Test Suite\n");
+  console.log("Citability Engine — Knowledge Graph Test Suite\n");
 
   const graph = new KnowledgeGraph(TEST_DB_PATH);
 
